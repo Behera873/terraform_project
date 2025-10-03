@@ -1,7 +1,5 @@
 resource "aws_vpc" "my_vpc" {
-  cidr_block       = var.cidr_block
- # enable_dns_hostnames = true
-   # enable_dns_support   = true
+  cidr_block       = var.cidr
 }
 
 resource "aws_subnet" "subnet1" {
@@ -27,11 +25,7 @@ resource "aws_subnet" "subnet2" {
 }
 
 resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.my_vpc.id
-
-  tags = {
-    Name = "my_igw"
-  }
+      vpc_id = aws_vpc.my_vpc.id
 }
 
 resource "aws_route_table" "RT" {
@@ -43,14 +37,68 @@ resource "aws_route_table" "RT" {
   }
 }
 
-resource "aws_route_table_association" "a1" {
+resource "aws_route_table_association" "rt1" {
   subnet_id      = aws_subnet.subnet1.id
-  route_table_id = aws_route_table.rt.id
+  route_table_id = aws_route_table.RT.id    
 }
 
-resource "aws_route_table_association" "a2" {
+resource "aws_route_table_association" "rt2" {
   subnet_id      = aws_subnet.subnet2.id
-  route_table_id = aws_route_table.rt.id
+  route_table_id = aws_route_table.RT.id
 }
 
+resource "aws_security_group" "sg" {
+  name        = "sg"
+  description = "Allow TLS inbound traffic and all outbound traffic"
+  vpc_id      = aws_vpc.my_vpc.id
 
+  ingress {
+    description = "HTTP from VPC"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "SSH from VPC"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    description = "All traffic"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "sg"
+  }
+}
+
+resource "aws_instance" "web1" {
+  ami           = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 AMI (HVM), SSD Volume Type
+  instance_type = "t2.micro"
+  subnet_id     = aws_subnet.subnet1.id
+  security_groups = [aws_security_group.sg.name]
+
+  tags = {
+    Name = "MyInstance 1"
+  }
+}
+
+resource "aws_instance" "web2" {
+  ami           = "ami-0c55b159cbfafe1f0" # Amazon Linux 2 AMI (HVM), SSD Volume Type
+  instance_type = "t2.micro"
+  subnet_id     = aws_subnet.subnet2.id
+  security_groups = [aws_security_group.sg.name]
+
+  tags = {
+    Name = "MyInstance 2"
+  }
+}
