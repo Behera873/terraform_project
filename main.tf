@@ -112,7 +112,7 @@ resource "aws_instance" "web1" {
               yum install -y httpd
               systemctl start httpd
               systemctl enable httpd
-              echo "<h5>Web2 - PaTerraform Project 2nd instance</h5>" > /var/www/html/index.html
+              echo "<h5>Web2 - PaTerraform Project 1st instance</h5>" > /var/www/html/index.html
               EOF
 
   tags = {
@@ -132,7 +132,7 @@ resource "aws_instance" "web2" {
               yum install -y httpd
               systemctl start httpd
               systemctl enable httpd
-              echo "<h1>Web2 - Terraform Project 2nd instance</h1>" > /var/www/html/index.html
+              echo "<h3>Web2 - Terraform Project 2nd instance</h3>" > /var/www/html/index.html
               EOF
 
   tags = {
