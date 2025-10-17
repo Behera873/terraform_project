@@ -1,6 +1,4 @@
-# -----------------------------------------
 # VPC and Subnets
-# -----------------------------------------
 resource "aws_vpc" "my_vpc" {
   cidr_block = var.cidr
 
@@ -31,9 +29,8 @@ resource "aws_subnet" "subnet2" {
   }
 }
 
-# -----------------------------------------
 # Internet Gateway and Route Table
-# -----------------------------------------
+
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.my_vpc.id
 
@@ -65,9 +62,8 @@ resource "aws_route_table_association" "rt2" {
   route_table_id = aws_route_table.RT.id
 }
 
-# -----------------------------------------
 # Security Group
-# -----------------------------------------
+
 resource "aws_security_group" "sg" {
   name        = "web_sg"
   description = "Allow HTTP and SSH"
@@ -102,9 +98,8 @@ resource "aws_security_group" "sg" {
   }
 }
 
-# -----------------------------------------
 # EC2 Instances (Amazon Linux 2)
-# -----------------------------------------
+
 resource "aws_instance" "web1" {
   ami                    = "ami-0f9708d1cd2cfee41" # Amazon Linux (ap-south-1)
   instance_type          = "t3.micro"
@@ -145,9 +140,8 @@ resource "aws_instance" "web2" {
   }
 }
 
-# -----------------------------------------
 # Application Load Balancer
-# -----------------------------------------
+
 resource "aws_lb" "app_lb" {
   name               = "app-lb"
   internal           = false
@@ -160,9 +154,8 @@ resource "aws_lb" "app_lb" {
   }
 }
 
-# -----------------------------------------
 # Target Group and Listener
-# -----------------------------------------
+
 resource "aws_lb_target_group" "app_tg" {
   name     = "app-tg"
   port     = 80
@@ -194,9 +187,8 @@ resource "aws_lb_listener" "app_listener" {
   }
 }
 
-# -----------------------------------------
 # Target Group Attachments
-# -----------------------------------------
+
 resource "aws_lb_target_group_attachment" "web1" {
   target_group_arn = aws_lb_target_group.app_tg.arn
   target_id        = aws_instance.web1.id
@@ -211,9 +203,8 @@ resource "aws_lb_target_group_attachment" "web2" {
   depends_on       = [aws_instance.web2]
 }
 
-# -----------------------------------------
 # Output
-# -----------------------------------------
+
 output "load_balancer_dns_name" {
   description = "DNS name of the Application Load Balancer"
   value       = aws_lb.app_lb.dns_name
